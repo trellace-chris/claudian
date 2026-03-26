@@ -238,6 +238,7 @@ export class ClaudianView extends ItemView {
       onTabClick: (tabId) => this.handleTabClick(tabId),
       onTabClose: (tabId) => this.handleTabClose(tabId),
       onNewTab: () => this.handleNewTab(),
+      onTabRename: (tabId, newTitle) => this.handleTabRename(tabId, newTitle),
     });
     fragment.appendChild(this.tabBarContainerEl);
 
@@ -362,6 +363,15 @@ export class ClaudianView extends ItemView {
       return;
     }
     this.updateTabBarVisibility();
+  }
+
+  private async handleTabRename(tabId: TabId, newTitle: string): Promise<void> {
+    const tab = this.tabManager?.getTab(tabId);
+    if (tab?.conversationId) {
+      await this.plugin.renameConversation(tab.conversationId, newTitle);
+      this.updateTabBar();
+      this.updateHistoryDropdown();
+    }
   }
 
   private updateTabBar(): void {
