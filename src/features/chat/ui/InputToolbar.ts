@@ -31,6 +31,7 @@ export interface ToolbarCallbacks {
   onPermissionModeChange: (mode: PermissionMode) => Promise<void>;
   getSettings: () => ToolbarSettings;
   getEnvironmentVariables?: () => string;
+  getProviderEnvVars?: () => string | null;
 }
 
 export class ModelSelector {
@@ -49,6 +50,20 @@ export class ModelSelector {
   private getAvailableModels() {
     let models: { value: string; label: string; description: string }[] = [];
 
+    // Check if a provider snippet is currently applied
+    if (this.callbacks.getProviderEnvVars) {
+      const providerEnvVars = this.callbacks.getProviderEnvVars();
+      if (providerEnvVars) {
+        const envVars = parseEnvironmentVariables(providerEnvVars);
+        const customModels = getModelsFromEnvironment(envVars);
+        if (customModels.length > 0) {
+          models = customModels;
+          return models;
+        }
+      }
+    }
+
+    // Fall back to general environment variables
     if (this.callbacks.getEnvironmentVariables) {
       const envVarsStr = this.callbacks.getEnvironmentVariables();
       const envVars = parseEnvironmentVariables(envVarsStr);

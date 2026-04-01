@@ -285,10 +285,12 @@ export interface ClaudianSettings {
   lastCustomModel?: ClaudeModel;
   lastEnvHash?: string;
 
+  lastAppliedSnippetId?: string;  // Track currently active provider snippet
   // Slash commands (loaded separately from .claude/commands/)
   slashCommands: SlashCommand[];
 
   // UI preferences
+  lastAppliedSnippetId?: string;  // Track currently active provider snippet
   maxTabs: number;  // Maximum number of chat tabs (3-10, default 3)
   tabBarPosition: TabBarPosition;  // Where to show tab bar ('input' or 'header')
   enableAutoScroll: boolean;  // Enable auto-scroll during streaming (default: true)
@@ -347,6 +349,7 @@ export const DEFAULT_SETTINGS: ClaudianSettings = {
   lastClaudeModel: 'haiku',
   lastCustomModel: '',
   lastEnvHash: '',
+  lastAppliedSnippetId: undefined,
 
   // Slash commands (loaded separately)
   slashCommands: [],

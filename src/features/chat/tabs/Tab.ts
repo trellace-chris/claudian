@@ -32,6 +32,7 @@ import {
   FileContextManager,
   ImageContextManager,
   InstructionModeManager as InstructionModeManagerClass,
+  ProviderSelector,
   NavigationSidebar,
   StatusPanel,
 } from '../ui';
@@ -117,6 +118,7 @@ export function createTab(options: TabCreateOptions): TabData {
       fileContextManager: null,
       imageContextManager: null,
       modelSelector: null,
+      providerSelector: null,
       thinkingBudgetSelector: null,
       externalContextSelector: null,
       mcpServerSelector: null,
