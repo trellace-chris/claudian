@@ -26,6 +26,7 @@ import type {
   McpServerSelector,
   ModelSelector,
   PermissionToggle,
+  ProviderSelector,
   StatusPanel,
   ThinkingBudgetSelector,
 } from '../ui';
@@ -137,6 +138,7 @@ export interface TabUIComponents {
   contextUsageMeter: ContextUsageMeter | null;
   statusPanel: StatusPanel | null;
   navigationSidebar: NavigationSidebar | null;
+  providerSelector: ProviderSelector | null;
 }
 
 /**

@@ -3,7 +3,7 @@ import { Notice } from 'obsidian';
 
 import { ClaudianService } from '../../../core/agent';
 import type { McpServerManager } from '../../../core/mcp';
-import type { ChatMessage, ClaudeModel, Conversation, PermissionMode, SlashCommand, ThinkingBudget } from '../../../core/types';
+import type { ChatMessage, ClaudeModel, Conversation, EnvSnippet, PermissionMode, SlashCommand, ThinkingBudget } from '../../../core/types';
 import { DEFAULT_CLAUDE_MODELS, DEFAULT_THINKING_BUDGET, getContextWindowSize } from '../../../core/types';
 import { t } from '../../../i18n';
 import type ClaudianPlugin from '../../../main';
@@ -127,6 +127,7 @@ export function createTab(options: TabCreateOptions): TabData {
       contextUsageMeter: null,
       statusPanel: null,
       navigationSidebar: null,
+      providerSelector: null,
     },
     dom,
     renderer: null,
@@ -469,7 +470,13 @@ function initializeInputToolbar(tab: TabData, plugin: ClaudianPlugin): void {
       await plugin.saveSettings();
       dom.inputWrapper.toggleClass('claudian-input-plan-mode', mode === 'plan');
     },
-  });
+    onProviderChange: async (snippet: EnvSnippet | null) => {
+      // Apply the environment variables from the selected snippet
+      await plugin.applyEnvironmentVariables(snippet?.envVars || '');
+      // Refresh the model selector to show models available for the new provider
+      tab.ui.modelSelector?.refresh();
+    },
+  }, plugin);
 
   tab.ui.modelSelector = toolbarComponents.modelSelector;
   tab.ui.thinkingBudgetSelector = toolbarComponents.thinkingBudgetSelector;
@@ -477,6 +484,7 @@ function initializeInputToolbar(tab: TabData, plugin: ClaudianPlugin): void {
   tab.ui.externalContextSelector = toolbarComponents.externalContextSelector;
   tab.ui.mcpServerSelector = toolbarComponents.mcpServerSelector;
   tab.ui.permissionToggle = toolbarComponents.permissionToggle;
+  tab.ui.providerSelector = toolbarComponents.providerSelector ?? null;
 
   tab.ui.mcpServerSelector.setMcpManager(plugin.mcpManager);
 

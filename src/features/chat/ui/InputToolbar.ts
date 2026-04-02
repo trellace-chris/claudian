@@ -5,6 +5,7 @@ import type { McpServerManager } from '../../../core/mcp';
 import type {
   ClaudeModel,
   ClaudianMcpServer,
+  EnvSnippet,
   PermissionMode,
   ThinkingBudget,
   UsageInfo
@@ -13,10 +14,12 @@ import {
   DEFAULT_CLAUDE_MODELS,
   THINKING_BUDGETS
 } from '../../../core/types';
+import type ClaudianPlugin from '../../../main';
 import { CHECK_ICON_SVG, MCP_ICON_SVG } from '../../../shared/icons';
 import { getModelsFromEnvironment, parseEnvironmentVariables } from '../../../utils/env';
 import { filterValidPaths, findConflictingPath, isDuplicatePath, isValidDirectoryPath, validateDirectoryPath } from '../../../utils/externalContext';
 import { expandHomePath, normalizePathForFilesystem } from '../../../utils/path';
+import { ProviderSelector } from './ProviderSelector';
 
 export interface ToolbarSettings {
   model: ClaudeModel;
@@ -31,6 +34,7 @@ export interface ToolbarCallbacks {
   onPermissionModeChange: (mode: PermissionMode) => Promise<void>;
   getSettings: () => ToolbarSettings;
   getEnvironmentVariables?: () => string;
+  onProviderChange?: (snippet: EnvSnippet | null) => Promise<void>;
 }
 
 export class ModelSelector {
@@ -102,6 +106,10 @@ export class ModelSelector {
   setReady(ready: boolean) {
     this.isReady = ready;
     this.buttonEl?.toggleClass('ready', ready);
+  }
+
+  refresh(): void {
+    this.render();
   }
 
   renderOptions() {
@@ -890,7 +898,8 @@ export class ContextUsageMeter {
 
 export function createInputToolbar(
   parentEl: HTMLElement,
-  callbacks: ToolbarCallbacks
+  callbacks: ToolbarCallbacks,
+  plugin?: ClaudianPlugin
 ): {
   modelSelector: ModelSelector;
   thinkingBudgetSelector: ThinkingBudgetSelector;
@@ -898,7 +907,19 @@ export function createInputToolbar(
   externalContextSelector: ExternalContextSelector;
   mcpServerSelector: McpServerSelector;
   permissionToggle: PermissionToggle;
+  providerSelector?: ProviderSelector;
 } {
+  let providerSelector: ProviderSelector | undefined;
+
+  // Create provider selector if plugin is available
+  if (plugin && callbacks.onProviderChange) {
+    providerSelector = new ProviderSelector(parentEl, plugin, {
+      onProviderChange: async (snippet) => {
+        await callbacks.onProviderChange!(snippet);
+      }
+    });
+  }
+
   const modelSelector = new ModelSelector(parentEl, callbacks);
   const thinkingBudgetSelector = new ThinkingBudgetSelector(parentEl, callbacks);
   const contextUsageMeter = new ContextUsageMeter(parentEl);
@@ -906,5 +927,5 @@ export function createInputToolbar(
   const mcpServerSelector = new McpServerSelector(parentEl);
   const permissionToggle = new PermissionToggle(parentEl, callbacks);
 
-  return { modelSelector, thinkingBudgetSelector, contextUsageMeter, externalContextSelector, mcpServerSelector, permissionToggle };
+  return { modelSelector, thinkingBudgetSelector, contextUsageMeter, externalContextSelector, mcpServerSelector, permissionToggle, providerSelector };
 }

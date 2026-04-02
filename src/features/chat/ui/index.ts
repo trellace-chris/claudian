@@ -13,4 +13,5 @@ export {
 } from './InputToolbar';
 export { type InstructionModeCallbacks, InstructionModeManager, type InstructionModeState } from './InstructionModeManager';
 export { NavigationSidebar } from './NavigationSidebar';
+export { ProviderSelector } from './ProviderSelector';
 export { type PanelBashOutput, type PanelSubagentInfo, StatusPanel } from './StatusPanel';
